@@ -3,5 +3,5 @@ version: '3'
 services:
     zadanie1:
         build: .
-        image: oliwiagil/ebiznes:v1
+        image: oliwiagil/ebiznes1:v1
 
