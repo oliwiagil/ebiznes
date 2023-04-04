@@ -8,20 +8,20 @@ GET     /                     controllers.ProductController.index()
 
 GET     /products             controllers.ProductController.getProducts
 GET     /product/:id          controllers.ProductController.getProduct(id: Long)
-POST    /updateproduct/:id    controllers.ProductController.updateProduct(id: Long)
-GET     /deleteproduct/:id    controllers.ProductController.deleteProduct(id: Long)
+PUT     /updateproduct/:id    controllers.ProductController.updateProduct(id: Long)
+DELETE  /deleteproduct/:id    controllers.ProductController.deleteProduct(id: Long)
 POST    /addproduct           controllers.ProductController.addProduct
 
 GET     /categories           controllers.CategoryController.getCategories
 GET     /category/:id         controllers.CategoryController.getCategory(id: Long)
-POST    /updatecategory/:id   controllers.CategoryController.updateCategory(id: Long)
-GET     /deletecategory/:id   controllers.CategoryController.deleteCategory(id: Long)
+PUT     /updatecategory/:id   controllers.CategoryController.updateCategory(id: Long)
+DELETE  /deletecategory/:id   controllers.CategoryController.deleteCategory(id: Long)
 POST    /addcategory          controllers.CategoryController.addCategory
 
 GET     /carts                controllers.CartController.getCarts
 GET     /cart/:id             controllers.CartController.getCart(id: Long)
-POST    /updatecart/:id       controllers.CartController.updateCart(id: Long)
-GET     /deletecart/:id       controllers.CartController.deleteCart(id: Long)
+PUT     /updatecart/:id       controllers.CartController.updateCart(id: Long)
+DELETE  /deletecart/:id       controllers.CartController.deleteCart(id: Long)
 POST    /addcart              controllers.CartController.addCart
 
 

@@ -88,7 +88,7 @@ class CartController @Inject()(val controllerComponents: ControllerComponents) e
   }
 
 
-  def addCart: Action[AnyContent] = Action { implicit request =>
+  def addCart(): Action[AnyContent] = Action { implicit request =>
     val content = request.body
     val jsonObject = content.asJson
 

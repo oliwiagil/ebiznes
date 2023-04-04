@@ -88,7 +88,7 @@ class CategoryController @Inject()(val controllerComponents: ControllerComponent
   }
 
 
-  def addCategory: Action[AnyContent] = Action { implicit request =>
+  def addCategory(): Action[AnyContent] = Action { implicit request =>
     val content = request.body
     val jsonObject = content.asJson
 

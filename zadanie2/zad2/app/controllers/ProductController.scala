@@ -94,7 +94,7 @@ class ProductController @Inject()(val controllerComponents: ControllerComponents
   }
 
 
-  def addProduct: Action[AnyContent] = Action { implicit request =>
+  def addProduct(): Action[AnyContent] = Action { implicit request =>
     val content = request.body
     val jsonObject = content.asJson
 
