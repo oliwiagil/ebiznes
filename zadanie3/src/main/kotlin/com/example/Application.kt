@@ -92,65 +92,107 @@ fun Application.module() {
 
     routing {
         post("/") {
-            val text = call.receiveText()
-            //https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
-            if(!verify(call.request.header("X-Signature-Ed25519"),call.request.header("X-Signature-Timestamp"), text)){
-                call.respond(HttpStatusCode(401, "invalid request signature"))
+            //slack
+            if(call.request.header("Content-type")=="application/x-www-form-urlencoded") {
+                val text = call.receiveText()
+                val parameters = text.split("&")
+                var command:String=""
+                var option:String=""
+
+                for (parameter in parameters) {
+                    val separatorIndex = parameter.indexOf("=")
+                    if (parameter.substring(0, separatorIndex) == "command") {
+                        //+4, bo trzy znaki zajmuje %2F, czyli "/" na początku komendy
+                        command=parameter.substring(separatorIndex + 4)
+                    }
+                    else if(parameter.substring(0, separatorIndex) == "text"){
+                        option=parameter.substring(separatorIndex + 1)
+                    }
+                }
+
+                var answer: String = "?"
+                if(command=="kategorie"){
+                    answer = "Dostępne kategorie to:\n"
+                    answer += categories.joinToString("\n")
+                }
+                else if(command=="produkty"){
+                    if (option == "krzesla") {
+                        answer = "Produkty z kategorii krzesła to:\n"
+                        answer += krzesla.joinToString("\n")
+                    } else if (option == "stoly") {
+                        answer = "Produkty z kategorii stoły to:\n"
+                        answer += stoly.joinToString("\n")
+                    } else if (option == "szafy") {
+                        answer = "Produkty z kategorii szafy to:\n"
+                        answer += szafy.joinToString("\n")
+                    } else if (option == "biurka") {
+                        answer = "Produkty z kategorii biurka to:\n"
+                        answer += biurka.joinToString("\n")
+                    } else{
+                        answer = "Użyto komendy /produkty, ale albo nie podano kategorii albo podano błędną kategorię. Aby poznać dostępne kategorie użyj comendy /kategorie.\n"
+                    }
+                }
+
+                call.respond(answer)
             }
 
-            val jsonObject: JsonObject = Json.decodeFromString(text)
-            val typeJ = jsonObject.get("type")
-            val type= typeJ.toString()
-            //PING, https://discord.com/developers/docs/interactions/receiving-and-responding#receiving-an-interaction
-            if(type == "1"){
-                call.respond(Ping(1))
-            }
-            //interakcja z użytkownikiem, https://discord.com/developers/docs/interactions/application-commands#slash-commands-example-interaction
-            else{
-                val dataJ = jsonObject.get("data")
-                val data: String= dataJ.toString()
-                val jsonNested: JsonObject = Json.decodeFromString(data)
-                val nameJ = jsonNested.get("name")
-                val name= nameJ.toString()
-
-                var answer: String="?"
-
-                if(name == "\"kategorie\""){
-                    answer="Dostępne kategorie to:\n"
-                    answer+= categories.joinToString("\n")
-                }
-                else if(name == "\"produkty\""){
-                    val optionJ = jsonNested.get("options")
-                    val option= optionJ.toString()
-                    val arrayJ: JsonArray = Json.decodeFromString(option)
-                    val elementJ=arrayJ.get(0)
-                    val element= elementJ.toString()
-                    val jsonNestedOption: JsonObject=Json.decodeFromString(element)
-                    val nameNestedJ = jsonNestedOption.get("value")
-                    val nameNested= nameNestedJ.toString()
-
-                    if(nameNested == "\"krzesla\""){
-                        answer="Produkty z kategorii krzesła to:\n"
-                        answer+=krzesla.joinToString("\n")
-                    }
-                    else if(nameNested == "\"stoly\""){
-                        answer="Produkty z kategorii stoły to:\n"
-                        answer+= stoly.joinToString("\n")
-                    }
-                    else if(nameNested == "\"szafy\""){
-                        answer="Produkty z kategorii szafy to:\n"
-                        answer+= szafy.joinToString("\n")
-                    }
-                    else if(nameNested == "\"biurka\""){
-                        answer="Produkty z kategorii biurka to:\n"
-                        answer+= biurka.joinToString("\n")
-                    }
-                }
-                else if(name == "\"test\""){
-                    answer= "Command received and answered!"
+            //discord
+            else {
+                val text = call.receiveText()
+                //https://discord.com/developers/docs/interactions/receiving-and-responding#security-and-authorization
+                if (!verify(call.request.header("X-Signature-Ed25519"), call.request.header("X-Signature-Timestamp"), text)) {
+                    call.respond(HttpStatusCode(401, "invalid request signature"))
                 }
 
-                call.respond(Response(4,Custom(answer)))
+                val jsonObject: JsonObject = Json.decodeFromString(text)
+                val typeJ = jsonObject.get("type")
+                val type = typeJ.toString()
+                //PING, https://discord.com/developers/docs/interactions/receiving-and-responding#receiving-an-interaction
+                if (type == "1") {
+                    call.respond(Ping(1))
+                }
+                //interakcja z użytkownikiem, https://discord.com/developers/docs/interactions/application-commands#slash-commands-example-interaction
+                else {
+                    val dataJ = jsonObject.get("data")
+                    val data: String = dataJ.toString()
+                    val jsonNested: JsonObject = Json.decodeFromString(data)
+                    val nameJ = jsonNested.get("name")
+                    val name = nameJ.toString()
+
+                    var answer: String = "?"
+
+                    if (name == "\"kategorie\"") {
+                        answer = "Dostępne kategorie to:\n"
+                        answer += categories.joinToString("\n")
+                    } else if (name == "\"produkty\"") {
+                        val optionJ = jsonNested.get("options")
+                        val option = optionJ.toString()
+                        val arrayJ: JsonArray = Json.decodeFromString(option)
+                        val elementJ = arrayJ.get(0)
+                        val element = elementJ.toString()
+                        val jsonNestedOption: JsonObject = Json.decodeFromString(element)
+                        val nameNestedJ = jsonNestedOption.get("value")
+                        val nameNested = nameNestedJ.toString()
+
+                        if (nameNested == "\"krzesla\"") {
+                            answer = "Produkty z kategorii krzesła to:\n"
+                            answer += krzesla.joinToString("\n")
+                        } else if (nameNested == "\"stoly\"") {
+                            answer = "Produkty z kategorii stoły to:\n"
+                            answer += stoly.joinToString("\n")
+                        } else if (nameNested == "\"szafy\"") {
+                            answer = "Produkty z kategorii szafy to:\n"
+                            answer += szafy.joinToString("\n")
+                        } else if (nameNested == "\"biurka\"") {
+                            answer = "Produkty z kategorii biurka to:\n"
+                            answer += biurka.joinToString("\n")
+                        }
+                    } else if (name == "\"test\"") {
+                        answer = "Command received and answered!"
+                    }
+
+                    call.respond(Response(4, Custom(answer)))
+                }
             }
         }
 
