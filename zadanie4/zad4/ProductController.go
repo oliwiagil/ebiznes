@@ -6,13 +6,22 @@ import (
 	"strconv"
 )
 
+//https://gorm.io/docs/has_many.html
 type Product struct {
 	//gorm.Model
-	Id 		int
-	Name string
+	Id 			uint
+	Name 		string
+	CategoryID 	uint
 }
 
-var nextProductId int
+type Category struct {
+	//gorm.Model
+	Id 			uint
+	Name 		string
+	Products 	[]Product
+}
+
+var nextProductId uint
 
 func index(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
@@ -25,6 +34,14 @@ func getProducts(c echo.Context) error {
 
 	db.Find(&products)
 	return c.JSON(http.StatusOK, products)
+}
+
+//e.GET("/categories", getCategories)
+func getCategories(c echo.Context) error {
+	var categories []Category
+
+	db.Find(&categories)
+	return c.JSON(http.StatusOK, categories)
 }
 
 // e.GET("/product/:id", getProduct)
@@ -46,15 +63,13 @@ func getProduct(c echo.Context) error {
 
 
 //curl -v -X PUT -H "Content-Type: application/json" -d "{\"name\": \"updated produkt\"}" localhost:1323/updateproduct/2
+//curl -v -X PUT -H "Content-Type: application/json" -d "{\"name\": \"updated produkt\", \"CategoryId\": 2}" localhost:1323/updateproduct/3
 //	e.PUT("/updateproduct/:id", updateProduct)
 func updateProduct(c echo.Context) error {
 	//https://echo.labstack.com/guide/#handling-request
 	updateProduct := new(Product)
 	if err := c.Bind(updateProduct); err != nil {
 		return err
-	}
-	if(updateProduct.Name==""){
-		return c.String(http.StatusBadRequest, "Błędny JSON.")
 	}
 	
 	idString :=c.Param("id")
@@ -64,12 +79,12 @@ func updateProduct(c echo.Context) error {
 	}
 	
 	var product Product
-
 	if db.First(&product, id).Error !=nil {
 		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
 	}
 	
-	db.Model(&product).Update("Name", updateProduct.Name)
+	//https://gorm.io/docs/update.html#Updates-multiple-columns
+	db.Model(&product).Updates(updateProduct)
 
 	return getProducts(c)
 }
@@ -85,7 +100,6 @@ func deleteProduct(c echo.Context) error {
 	}
 
 	var product Product
-	
 	db.Delete(&product, id)
 	
 	return getProducts(c)

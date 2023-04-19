@@ -18,6 +18,8 @@ func Routing(e *echo.Echo){
 	e.PUT("/updatecart/:id", updateCart)
 	e.DELETE("/deletecart/:id", deleteCart)
 	e.POST("/addcart", addCart)
+
+	e.GET("/categories", getCategories)
 }
 
  

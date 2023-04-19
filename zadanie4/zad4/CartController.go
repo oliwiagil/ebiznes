@@ -9,11 +9,11 @@ import (
 
 type Cart struct {
 	//gorm.Model
-	Id 		int
-	Name string
+	Id 		uint
+	Name 	string
 }
 
-var nextCartId int
+var nextCartId uint
 
 
 func getCarts(c echo.Context) error {
@@ -47,9 +47,6 @@ func updateCart(c echo.Context) error {
 	if err := c.Bind(updateCart); err != nil {
 		return err
 	}
-	if(updateCart.Name==""){
-		return c.String(http.StatusBadRequest, "Błędny JSON.")
-	}
 
 	idString :=c.Param("id")
 	id, err := strconv.Atoi(idString)
@@ -58,12 +55,11 @@ func updateCart(c echo.Context) error {
 	}
 
 	var cart Cart
-
 	if db.First(&cart, id).Error !=nil {
 		return c.String(http.StatusBadRequest, "Nie ma koszyka o podanym id")
 	}
 
-	db.Model(&cart).Update("Name", updateCart.Name)
+	db.Model(&cart).Updates(updateCart)
 
 	return getCarts(c)
 }
