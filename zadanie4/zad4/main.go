@@ -5,66 +5,18 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+//go build main.go CartController.go ProductController.go Routing.go DbInit.go
 //http://localhost:1323
+
 
 func main() {
 	e := echo.New()
 	Routing(e)
-	Init()
+	DbInit()
 	
 	fmt.Println("START")
 	e.Logger.Fatal(e.Start(":1323"))
 }
-
-//https://github.com/go-gorm/sqlite/issues/142
-
-/*package main
-
-import (
-	"fmt"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
-)
-
-type Product struct {
-	gorm.Model
-	Code  string
-	Price uint
-}
-
-func main() {
-	fmt.Println("START")
-	db, err := gorm.Open(sqlite.Open("test.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-
-	// Migrate the schema
-	db.AutoMigrate(&Product{})
-
-	// Create
-	db.Create(&Product{Code: "D42", Price: 100})
-
-	// Read
-	var product Product
-	db.First(&product, 1) // find product with integer primary key
-	db.First(&product, "code = ?", "D42") // find product with code D42
-
-	fmt.Println(product.Price)
-
-	// Update - update product's price to 200
-	db.Model(&product).Update("Price", 200)
-	// Update - update multiple fields
-	db.Model(&product).Updates(Product{Price: 200, Code: "F42"}) // non-zero fields
-	db.Model(&product).Updates(map[string]interface{}{"Price": 200, "Code": "F42"})
-
-	// Delete - delete product
-	db.Delete(&product, 1)
-}
-
-*/
-
-
 
 
 

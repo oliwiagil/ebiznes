@@ -2,8 +2,6 @@ package main
 
 import (
 	"github.com/labstack/echo/v4"
-	"gorm.io/driver/sqlite"
-	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
@@ -14,27 +12,7 @@ type Product struct {
 	Name string
 }
 
-var nextId int
-var db *gorm.DB
-var err error
-
-
-//https://gorm.io/docs/index.html
-func Init(){
-	nextId=4
-
-	db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
-	if err != nil {
-		panic("failed to connect database")
-	}
-	
-	db.AutoMigrate(&Product{})
-
-	//db.Create(&Product{Model: gorm.Model{ID: 1}, Name: "first"})
-	db.Create(&Product{Id: 1, Name: "first"})
-	db.Create(&Product{Id: 2, Name: "second"})
-	db.Create(&Product{Id: 3, Name: "third"})
-}
+var nextProductId int
 
 func index(c echo.Context) error {
 	return c.String(http.StatusOK, "Hello, World!")
@@ -126,9 +104,9 @@ func addProduct(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Błędny JSON.")
 	}
 
-	product := &Product{Id: nextId, Name: addedProduct.Name}
+	product := &Product{Id: nextProductId, Name: addedProduct.Name}
 	db.Create(product)
-	nextId+=1
+	nextProductId+=1
 
 	return c.JSON(http.StatusOK, product)
 }
