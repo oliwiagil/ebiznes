@@ -13,3 +13,5 @@ func Routing(e *echo.Echo){
 	e.DELETE("/deleteproduct/:id", deleteProduct)
 	e.POST("/addproduct", addProduct)
 }
+
+ 

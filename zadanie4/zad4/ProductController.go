@@ -1,51 +1,69 @@
 package main
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
 )
 
-type Product struct{
-	Id 		int 	`json:"id"`
-	Name 	string	`json:"name"`
+type Product struct {
+	//gorm.Model
+	Id 		int
+	Name string
 }
 
-var productList []Product
 var nextId int
+var db *gorm.DB
+var err error
 
+
+//https://gorm.io/docs/index.html
 func Init(){
-	productList = []Product{{1, "first"}, {2, "second"}, {3, "third"}}
 	nextId=4
+
+	db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})
+	if err != nil {
+		panic("failed to connect database")
+	}
+	
+	db.AutoMigrate(&Product{})
+
+	//db.Create(&Product{Model: gorm.Model{ID: 1}, Name: "first"})
+	db.Create(&Product{Id: 1, Name: "first"})
+	db.Create(&Product{Id: 2, Name: "second"})
+	db.Create(&Product{Id: 3, Name: "third"})
 }
 
 func index(c echo.Context) error {
-	fmt.Println(productList)
 	return c.String(http.StatusOK, "Hello, World!")
 }
 
 // e.GET("/products", getProducts)
 func getProducts(c echo.Context) error {
-	return c.JSON(http.StatusOK, productList)
+	//https://gorm.io/docs/query.html#Retrieving-all-objects
+	var products []Product
+
+	db.Find(&products)
+	return c.JSON(http.StatusOK, products)
 }
 
 // e.GET("/product/:id", getProduct)
 func getProduct(c echo.Context) error {
-	// Product ID from path `product/:id`
 	idString :=c.Param("id")
 	id, err := strconv.Atoi(idString)
 	if(err!=nil) {
 		return c.String(http.StatusBadRequest, "Error, id powinno być liczbą")
 	}
 	
-	for _, element := range productList{
-		if(element.Id==id){
-			return c.JSON(http.StatusOK, element)
-		}
+	//https://gorm.io/docs/query.html#Retrieving-objects-with-primary-key
+	var product Product
+	if db.First(&product, id).Error !=nil {
+		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
 	}
-	
-	return c.String(http.StatusBadRequest, "Nie istnieje produkt o podanym id")
+
+	return c.JSON(http.StatusOK, product)
 }
 
 
@@ -57,7 +75,6 @@ func updateProduct(c echo.Context) error {
 	if err := c.Bind(updateProduct); err != nil {
 		return err
 	}
-	
 	if(updateProduct.Name==""){
 		return c.String(http.StatusBadRequest, "Błędny JSON.")
 	}
@@ -67,23 +84,16 @@ func updateProduct(c echo.Context) error {
 	if(err!=nil) {
 		return c.String(http.StatusBadRequest, "Error, id powinno być liczbą")
 	}
+	
+	var product Product
 
-	var updateIndex int
-	updated:=false
-	for index, element := range productList{
-		if(element.Id==id){
-			updateIndex=index
-			updated=true
-			break
-		}
+	if db.First(&product, id).Error !=nil {
+		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
 	}
 	
-	if(updated){
-		productList[updateIndex].Name=updateProduct.Name
-		return c.JSON(http.StatusOK, productList)
-	}
+	db.Model(&product).Update("Name", updateProduct.Name)
 
-	return c.String(http.StatusBadRequest, "Nie istnieje produkt o podanym id")
+	return getProducts(c)
 }
 
 
@@ -95,23 +105,14 @@ func deleteProduct(c echo.Context) error {
 	if(err!=nil) {
 		return c.String(http.StatusBadRequest, "Error, id powinno być liczbą")
 	}
+
+	var product Product
 	
-	var removeIndex int
-	removed:=false
-	for index, element := range productList{
-		if(element.Id==id){
-			removeIndex=index
-			removed=true
-			break
-		}
-	}
+	db.Delete(&product, id)
 	
-	if(removed) {
-		productList = append(productList[:removeIndex], productList[1+removeIndex:]...)
-	}
-	
-	return c.JSON(http.StatusOK, productList)
+	return getProducts(c)
 }
+
 
 //curl -v -X POST -H "Content-Type: application/json" -d "{\"name\": \"nowy produkt\"}" localhost:1323/addproduct
 //e.POST("/addproduct", addProduct)
@@ -121,17 +122,18 @@ func addProduct(c echo.Context) error {
 	if err := c.Bind(addedProduct); err != nil {
 		return err
 	}
-
 	if(addedProduct.Name==""){
 		return c.String(http.StatusBadRequest, "Błędny JSON.")
 	}
-	
-	addedProduct.Id=nextId
+
+	product := &Product{Id: nextId, Name: addedProduct.Name}
+	db.Create(product)
 	nextId+=1
-	
-	productList=append(productList, *addedProduct)
-	
-	return c.JSON(http.StatusOK, *addedProduct)
+
+	return c.JSON(http.StatusOK, product)
 }
 
 
+
+
+ 
