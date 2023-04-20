@@ -31,16 +31,17 @@ func index(c echo.Context) error {
 func getProducts(c echo.Context) error {
 	//https://gorm.io/docs/query.html#Retrieving-all-objects
 	var products []Product
-
-	db.Find(&products)
+	(FindAllProductsDb(&products))(db)
+	
 	return c.JSON(http.StatusOK, products)
 }
 
 //e.GET("/categories", getCategories)
 func getCategories(c echo.Context) error {
 	var categories []Category
-
-	db.Find(&categories)
+	FindAllCategoriesDb(&categories)(db)
+	//db.Find(&categories)
+	
 	return c.JSON(http.StatusOK, categories)
 }
 
@@ -54,10 +55,11 @@ func getProduct(c echo.Context) error {
 	
 	//https://gorm.io/docs/query.html#Retrieving-objects-with-primary-key
 	var product Product
-	if db.First(&product, id).Error !=nil {
-		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
-	}
-
+	//db.Scopes(findProductDb(&product, id)).First(&product, id)
+	if (FindProductDb(&product, id))(db).Error!=nil {
+			return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
+		}
+		
 	return c.JSON(http.StatusOK, product)
 }
 
@@ -79,12 +81,12 @@ func updateProduct(c echo.Context) error {
 	}
 	
 	var product Product
-	if db.First(&product, id).Error !=nil {
+	if (FindProductDb(&product, id))(db).Error!=nil {
 		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
 	}
 	
 	//https://gorm.io/docs/update.html#Updates-multiple-columns
-	db.Model(&product).Updates(updateProduct)
+	db.Scopes(GetProductModelDb(&product)).Updates(updateProduct)
 
 	return getProducts(c)
 }
@@ -100,7 +102,7 @@ func deleteProduct(c echo.Context) error {
 	}
 
 	var product Product
-	db.Delete(&product, id)
+	(DeleteProductDb(&product, id))(db)
 	
 	return getProducts(c)
 }
@@ -118,8 +120,8 @@ func addProduct(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Błędny JSON.")
 	}
 
-	product := &Product{Id: nextProductId, Name: addedProduct.Name}
-	db.Create(product)
+	product := Product{Id: nextProductId, Name: addedProduct.Name}
+	(CreateProductDb(&product))(db)
 	nextProductId+=1
 
 	return c.JSON(http.StatusOK, product)

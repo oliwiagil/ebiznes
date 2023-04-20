@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"github.com/labstack/echo/v4"
 	"net/http"
 	"strconv"
@@ -18,15 +17,14 @@ var nextCartId uint
 
 func getCarts(c echo.Context) error {
 	var carts []Cart
-
-	db.Find(&carts)
+	(FindAllCartsDb(&carts))(db)
+	//db.Find(&carts)
+	
 	return c.JSON(http.StatusOK, carts)
 }
 
 
 func getCart(c echo.Context) error {
-	fmt.Println("getCart")
-	
 	idString :=c.Param("id")
 	id, err := strconv.Atoi(idString)
 	if(err!=nil) {
@@ -34,10 +32,11 @@ func getCart(c echo.Context) error {
 	}
 
 	var cart Cart
-	if db.First(&cart, id).Error !=nil {
-		return c.String(http.StatusBadRequest, "Nie ma koszyka o podanym id")
+	if (FindCartDb(&cart, id))(db).Error!=nil {
+		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
 	}
-
+	//db.First(&cart, id).Error !=nil
+	
 	return c.JSON(http.StatusOK, cart)
 }
 
@@ -55,11 +54,12 @@ func updateCart(c echo.Context) error {
 	}
 
 	var cart Cart
-	if db.First(&cart, id).Error !=nil {
-		return c.String(http.StatusBadRequest, "Nie ma koszyka o podanym id")
+	if (FindCartDb(&cart, id))(db).Error!=nil {
+		return c.String(http.StatusBadRequest, "Nie ma produktu o podanym id")
 	}
 
-	db.Model(&cart).Updates(updateCart)
+	db.Scopes(GetCartModelDb(&cart)).Updates(updateCart)
+	//db.Model(&cart).Updates(updateCart)
 
 	return getCarts(c)
 }
@@ -73,8 +73,9 @@ func deleteCart(c echo.Context) error {
 	}
 
 	var cart Cart
+	(DeleteCartDb(&cart, id))(db)
 
-	db.Delete(&cart, id)
+	//db.Delete(&cart, id)
 
 	return getCarts(c)
 }
@@ -90,8 +91,9 @@ func addCart(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Błędny JSON.")
 	}
 
-	cart := &Cart{Id: nextCartId, Name: addedCart.Name}
-	db.Create(cart)
+	cart := Cart{Id: nextCartId, Name: addedCart.Name}
+	(CreateCartDb(&cart))(db)
+	//db.Create(&cart)
 	nextCartId+=1
 
 	return c.JSON(http.StatusOK, cart)

@@ -12,7 +12,7 @@ var err error
 //https://gorm.io/docs/index.html
 
 func DbInit(){
-	nextProductId=4
+	nextProductId=5
 	nextCartId=4
 
 	db, err = gorm.Open(sqlite.Open("gorm.db"), &gorm.Config{})

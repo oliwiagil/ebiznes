@@ -5,7 +5,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//go build main.go CartController.go ProductController.go Routing.go DbInit.go
+//go build main.go CartController.go ProductController.go Routing.go DbInit.go Scopes.go
 //http://localhost:1323
 
 
