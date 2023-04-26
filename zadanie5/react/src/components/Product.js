@@ -20,13 +20,14 @@ export const Product = () => {
     return (
         <div>
             <div className="products">
-                Produkty w koszyku {cart.length}
+                <p>Dostępne produkty (w nawiasie podana jest cena):</p>
                 <ul>
                     {products.map((product) => (<li>
-                        {product.name} {product.price}&nbsp;
+                        {product.name} ({product.price})&nbsp;
                         <button onClick={() => addCart(product)}>Dodaj do koszyka</button>
                     </li>))}
                 </ul>
+                <p>Produkty w koszyku {cart.length}</p>
             </div>
         </div>
 

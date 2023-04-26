@@ -1,12 +1,15 @@
+import {useContext} from "react";
+import {ShopContext} from "../contexts/context";
+
 export function Payment(props) {
+    const {clearCart} = useContext(ShopContext);
+
     return (
-        <button onClick={() => pay(props.value)}>Zapłać {props.value}</button>
+        <button onClick={() => {pay(props.value); clearCart();}}>Zapłać za {props.value}</button>
     );
 }
 
 function pay(value){
-    console.log(value)
-
     const requestOptions = {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

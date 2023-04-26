@@ -4,7 +4,7 @@ import {ShopContext} from "../contexts/context";
 
 
 export const Cart = () => {
-    const {cart} = useContext(ShopContext);
+    const {cart, clearCart} = useContext(ShopContext);
 
     return (
         <div>
@@ -14,6 +14,7 @@ export const Cart = () => {
                         {product.name} {product.price} &nbsp;
                     </li>))}
                     <Payment value={cart.length}></Payment>
+                    <button onClick={() => clearCart()}>Usuń wszystko z koszyka</button>
                 </ul>
             </div>
         </div>
