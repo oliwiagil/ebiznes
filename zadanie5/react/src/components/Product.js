@@ -1,5 +1,5 @@
-import {useEffect, useState} from "react";
-import { Payment } from './Payment';
+import {useContext, useEffect, useState} from "react";
+import {ShopContext} from "../contexts/context";
 
 async function getProducts() {
     return await fetch(`http://localhost:9000/products`)
@@ -7,9 +7,11 @@ async function getProducts() {
 }
 
 export const Product = () => {
+    const {cart, addCart} = useContext(ShopContext);
     const [products, setProducts] = useState([]);
 
-    useEffect( () => {
+    useEffect
+    ( () => {
         const productsServer = getProducts()
         productsServer.then((product)=>{setProducts(product)}
         )
@@ -18,10 +20,11 @@ export const Product = () => {
     return (
         <div>
             <div className="products">
+                Produkty w koszyku {cart.length}
                 <ul>
                     {products.map((product) => (<li>
                         {product.name} {product.price}&nbsp;
-                        <Payment value={product.price}></Payment>
+                        <button onClick={() => addCart(product)}>Dodaj do koszyka</button>
                     </li>))}
                 </ul>
             </div>
