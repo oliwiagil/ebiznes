@@ -2,7 +2,6 @@ import {useContext} from "react";
 import {ShopContext} from "../contexts/context";
 import axios from "axios";
 
-axios.defaults.headers.post['Access-Control-Allow-Origin'] = '*';
 
 export function Payment(props) {
     const {clearCart} = useContext(ShopContext);
