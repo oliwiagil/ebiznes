@@ -5,4 +5,4 @@ Zadanie:	Zrobione na ocenę:
 2 (Scala)	5
 3 (Discord)	5
 4 (Golang)	5
-5 (React)	4
+5 (React)	4.5
