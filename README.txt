@@ -1,4 +1,4 @@
-Ebiznes
+﻿Ebiznes
 
 Zadanie:	Zrobione na ocenę:
 1 (Docker)	5
@@ -6,3 +6,4 @@ Zadanie:	Zrobione na ocenę:
 3 (Discord)	5
 4 (Golang)	5
 5 (React)	5
+6 (Selenium)	3.5
