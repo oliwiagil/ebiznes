@@ -7,3 +7,4 @@ Zadanie:	Zrobione na ocenę:
 4 (Golang)	5
 5 (React)	5
 6 (Selenium)	3.5
+7 (Sonar)	5
