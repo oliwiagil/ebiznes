@@ -23,6 +23,7 @@ import kotlinx.serialization.json.*
 import kotlin.time.Duration.Companion.seconds
 
 val openai = OpenAI(
+    //https://platform.openai.com/account/api-keys
     token = "openai api key",
     timeout = Timeout(socket = 60.seconds)
 )
