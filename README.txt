@@ -9,3 +9,4 @@ Zadanie:	Zrobione na ocenę:
 6 (Selenium)	3.5
 7 (Sonar)	5
 8 (login)	3.5
+9 (openai)	3.5
