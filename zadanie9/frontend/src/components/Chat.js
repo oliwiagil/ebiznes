@@ -1,8 +1,38 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 
 export const Chat = () => {
+    const openingText = ["Dzień dobry, jeśli chcesz poznać dostępne kategorie wpisz poniżej \"kategorie\".",
+        "Dzień dobry, jeśli chcesz poznać dostępne kategorie wpisz poniżej \"produkty\".",
+        "Dzień dobry, jeśli wpiszesz interesującą Cię kategorię to otrzymasz listę produktów z tej kategorii (pamiętaj aby najpierw sprawdzić dostępne kategorie poprzez wpisanie \"kategorie\").",
+        "Dzień dobry, możesz zadać mi dowolne pytanie, a ja postaram się na nie odpowiedzieć.",
+        "Dzień dobry, nasz sklep oferuje szeroką gamę produktów. Aby się o tym przekonać wpisz \"produkty\"."
+    ]
+
+    const closingText = ["Życzymy miłego dnia.",
+        "Dziękujemy za zainteresowanie naszym sklepem.",
+        "W razie dalszych pytań chętnie służymy pomocą.",
+        "Do zobaczenia następnym razem!",
+        "Mamy nadzieję, że nasza pomoc była przydatna."
+    ]
+
     const [question, setQuestion] = useState('');
     const [answer, setAnswer] = useState('');
+    const [opening, setOpening] = useState(openingText[Math.floor(Math.random()*openingText.length)]);
+    const [closing, setClosing] = useState('');
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        if (count === 3) {
+            setClosing(closingText[Math.floor(Math.random()*closingText.length)])
+        }else if(count>=4){
+            setCount(0)
+            setClosing('')
+        }
+    }, [count]);
+
+    const incrementCount = () => {
+        setCount(count + 1);
+    };
 
     const submitMessage = async(e) => {
         // Prevent the browser from reloading the page
@@ -17,6 +47,9 @@ export const Chat = () => {
 
         setQuestion(message)
         setAnswer("")
+        setOpening("")
+
+        incrementCount()
 
         fetch('http://localhost:8080/', requestOptions)
             .then(response => {
@@ -39,8 +72,10 @@ export const Chat = () => {
             <div>
                 <h1>Witaj w sklepie!</h1>
                 <h2>Zadaj poniżej pytanie.</h2>
+                {opening && <p>{opening}</p>}
                 {question && <p> <span style={{ color: "green" }}>Twoje pytanie:</span> {question}</p>}
                 {answer && <p><span style={{ color: "lightcoral" }}>Odpowiedź:</span> {answer}</p>}
+                {closing && <p>{closing}</p>}
                 <form method="post" onSubmit={submitMessage}>
                     <input type={"text"} name={"message"} style={{ width: '400px' }}/>
                     <button type="submit" style={{ verticalAlign: 'top' }}>Wyślij zapytanie</button>
